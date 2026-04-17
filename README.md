@@ -1,123 +1,116 @@
-# Mutual of Enumclaw MT Home — Playwright Test Suite
+TurboRater Playwright Test Suite
+End-to-end test documentation for all spec files
 
-Automated end-to-end tests for the Mutual of Enumclaw Montana Home product in TurboRater. The suite iterates through exterior wall and roof composition option combinations, captures screenshots at key steps, and verifies that quotes can be selected successfully.
 
----
+Setup & Configuration
+These settings apply to all spec files in this suite.
 
-## What It Tests
+Prerequisites
+•	Node.js v18 or later
+•	Playwright installed in the project
+•	TurboRater account with access to the relevant product lines
+•	Input XML policy files present at their configured paths
 
-For each iteration (1–30), the test:
-
-1. Logs into TurboRater
-2. Imports a pre-built MT Home policy from an XML file
-3. Handles optional modals (effective date confirmation, credit score entry)
-4. Selects exterior wall and roof composition options by index
-5. Screenshots the **Property Attribute** section
-6. Navigates through the quote workflow:
-   - Home Policy Page → HO Coverage → HO Company Questions → Pre-Comparison
-7. Selects the **Mutual of Enumclaw** carrier
-8. On the Comparison page, either:
-   - **Success path**: Clicks the quote link and screenshots the `PropertyInfoContainerPanel` breakdown
-   - **Error path**: Screenshots the error message panel before dismissing
-
----
-
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18+ recommended)
-- [Playwright](https://playwright.dev/) installed in your project
-- A TurboRater account with access to the MT Home product
-- The input XML file at the path specified below
-
-### Install dependencies
-
-```bash
+Install Dependencies
 npm install
 npx playwright install chromium
-```
 
----
+Environment Variables
+Set the following before running any spec. Use a .env file with dotenv or export directly:
 
-## Configuration
+Variable	Description
+TR_USERNAME	TurboRater login username
+TR_PASSWORD	TurboRater login password
 
-### Environment Variables
-
-Set the following before running tests:
-
-| Variable | Description |
-|---|---|
-| `TR_USERNAME` | TurboRater login username |
-| `TR_PASSWORD` | TurboRater login password |
-
-You can use a `.env` file with a tool like `dotenv` or export them directly:
-
-```bash
 export TR_USERNAME="your_username"
 export TR_PASSWORD="your_password"
-```
 
-### Input Data
+Base URL
+Set the baseURL in playwright.config.ts to point at your TurboRater environment:
 
-The test imports a policy from a local XML file. Ensure it exists at:
-
-```
-C:/Users/lauron/Testing/turborater-ticket-tests/input-data/MT_Home.xml
-```
-
-Update the path in the test file if your local setup differs.
-
-### Base URL
-
-Set the `baseURL` in your `playwright.config.ts` to point at your TurboRater environment:
-
-```ts
 use: {
   baseURL: 'https://your-turborater-instance.com',
 },
-```
 
----
 
-## Running the Tests
 
-```bash
+Spec Index
+All specs in this suite. Add a row here when adding a new spec file.
+
+#	File	Description
+1	roofAndWall_HomeMT.spec.js	Iterates exterior wall & roof composition options for MT Home
+
+
+
+SPEC 1    Mutual of Enumclaw MT Home
+roofAndWall_HomeMT.spec.js
+
+
+Spec Details
+Describe Block: Mutual of Enumclaw MT Home Test
+Test Name Pattern: Exterior walls and Roof composition - {1..30}
+Browser: Chromium only (skipped on Firefox and WebKit)
+Test Count: 30 parameterized tests (loop index 1–30)
+Timeout: 120 seconds per test
+
+Purpose
+Validates that the Mutual of Enumclaw Montana Home product in TurboRater can successfully generate quotes across all combinations of exterior wall and roof composition dropdown options. The suite iterates through indices 1–30, selecting each option permutation, capturing screenshots at key steps, and verifying quote selection succeeds or gracefully surfaces an error.
+
+Test Flow
+1.	Log into TurboRater with environment-variable credentials
+2.	Navigate to Quotes and import the MT_Home.xml policy file
+3.	Handle optional modals: Effective Date confirmation and Credit Score entry
+4.	Select exterior wall option by loop index (CPH_ConstructionEntry)
+5.	Select roof composition option by loop index (CPH_RoofCompositionEntry)
+6.	Screenshot the PropertyAttributeDivLeft section
+7.	Advance through: Home Policy → HO Coverage → HO Company Questions → Pre-Comparison
+8.	Select Mutual of Enumclaw on the Pre-Comparison page
+9.	On HOComparisonPageNew, poll until BridgeQuoteLink elements are visible
+10.	Success path: click SelectQuoteLink_0, confirm modal, screenshot PropertyInfoContainerPanel
+11.	Error path: screenshot CPH_MessagePanel error, dismiss modal
+
+Key Locators
+Locator	Description
+#CPH_ConstructionEntry	Exterior wall type dropdown
+#CPH_RoofCompositionEntry	Roof composition dropdown
+div.PropertyAttributeDivLeft	Property Attribute screenshot target
+#BottomNextButton	Page-advance submit button
+a[id^="CPH_ComparisonGrid_BridgeQuoteLink"]	Bridge quote availability links
+#CPH_ComparisonGrid_SelectQuoteLink_0	First carrier quote select link
+div#CPH_MessagePanel	Success/error message panel
+div#CPH_PropertyInfoContainerPanel	Quote breakdown panel (success)
+
+Fallback Logic
+If the loop index i exceeds the number of available options in a dropdown, the test falls back to index 1 rather than failing. This prevents out-of-bounds errors when dropdowns have fewer than 30 options.
+
+URL Sequence
+URL Pattern	Page
+/welcome	Post-login landing page
+/HOCoverage	HO Coverage page
+/HOCompanyQuestionPage	HO Company Questions page
+/HOPreComparisonPage	Pre-Comparison carrier selection
+/HOComparisonPageNew	Comparison results page
+
+Screenshots
+File	Path	Description
+{i}_PolicyPropertyAttribute.png	Success + Error	Property Attribute section with selected wall/roof options
+{i}_BreakdownPropertyInfo.png	Success only	Quote breakdown panel
+{i}_ErrorSelectQuote.png	Error only	Error message panel before dismissal
+
+Run Commands
 # Run all tests
-npx playwright test tr-mutualenumsuiteMT.spec.js
+npx playwright test roofAndWall_HomeMT.spec.js
 
-# Run a specific iteration (e.g., iteration 5)
-npx playwright test tr-mutualenumsuiteMT.spec.js --grep "Exterior walls and Roof composition - 5"
+# Run a specific iteration
+npx playwright test roofAndWall_HomeMT.spec.js --grep "Exterior walls and Roof composition - 5"
 
-# Run with the Playwright UI
-npx playwright test tr-mutualenumsuiteMT.spec.js --ui
+# Playwright UI
+npx playwright test roofAndWall_HomeMT.spec.js --ui
 
-# Run headed (visible browser)
-npx playwright test tr-mutualenumsuiteMT.spec.js --headed
-```
+# Headed (visible browser)
+npx playwright test roofAndWall_HomeMT.spec.js --headed
 
-> **Note:** Tests are scoped to Chromium only and will be skipped on other browsers.
-
----
-
-## Screenshots
-
-Screenshots are saved to the `screenshots/` directory in the project root. Each iteration produces up to two files:
-
-| File | Description |
-|---|---|
-| `{i}_PolicyPropertyAttribute.png` | Property Attribute section with selected wall/roof options |
-| `{i}_BreakdownPropertyInfo.png` | Quote breakdown panel (success path) |
-| `{i}_ErrorSelectQuote.png` | Error message panel (error path) |
-
----
-
-## Test Timeout
-
-Each test has a timeout of **120 seconds** to accommodate page load times and network-heavy workflows.
-
----
-
-## Notes
-
-- The test loops from index `1` to `30`. If the index exceeds the available options in a dropdown, it falls back to index `1`.
-- The effective date and credit score modals are handled with graceful `try/catch` blocks — missing modals will not fail the test.
-- Bridge quote link visibility is verified with a `waitForFunction` polling check before attempting to select a quote.
+Notes
+•	The test loops from index 1 to 30. If the index exceeds available dropdown options, it falls back to index 1.
+•	Effective date and credit score modals are handled with graceful try/catch blocks — missing modals will not fail the test.
+•	Bridge quote link visibility is verified with a waitForFunction polling check before attempting to select a quote.
