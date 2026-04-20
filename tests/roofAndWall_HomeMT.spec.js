@@ -25,7 +25,9 @@ test.describe('Mutual of Enumclaw MT Home Test', () => {
 
             // Input files directly
             await page.getByText('Import Policy From File OK').waitFor({ state: 'visible'});
-            await page.locator('input#importFilePopup_ImportFileNameEntry').setInputFiles('C:/Users/lauron/Testing/turborater-ticket-tests/input-data/MT_Home.xml');
+
+            const path = require('path');
+            await page.locator('input#importFilePopup_ImportFileNameEntry').setInputFiles( path.join(__dirname, 'input-data', 'MT_Home.xml'));
             await page.getByRole('button', { name: 'OK' }).click();
             await page.waitForLoadState('domcontentloaded');
 
