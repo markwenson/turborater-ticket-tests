@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 
 test.skip(({ browserName }) => browserName != 'chromium', 'Only test chrome');
-
+import path from 'path';
 
 test.describe('Mutual of Enumclaw MT Home Test', () => {
     // Iterate through exterior wall and roof composition options, taking screenshots of the property attribute section.
@@ -26,8 +26,8 @@ test.describe('Mutual of Enumclaw MT Home Test', () => {
             // Input files directly
             await page.getByText('Import Policy From File OK').waitFor({ state: 'visible'});
 
-            const path = require('path');
-            await page.locator('input#importFilePopup_ImportFileNameEntry').setInputFiles( path.join(__dirname, 'input-data', 'MT_Home.xml'));
+            // const path = require('path');
+            await page.locator('input#importFilePopup_ImportFileNameEntry').setInputFiles( path.join(process.cwd(), 'input-data', 'MT_Home.xml'));
             await page.getByRole('button', { name: 'OK' }).click();
             await page.waitForLoadState('domcontentloaded');
 
